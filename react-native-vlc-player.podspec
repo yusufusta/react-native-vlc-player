@@ -3,7 +3,7 @@ package = JSON.parse(File.read(File.join(__dir__, 'package.json')))
 Pod::Spec.new do |s|
   s.name            = 'react-native-vlc-player'
   s.version         = package['version']
-  s.summary         = 'VLC Player for React Native'
+  s.summary         = 'VLC Player for React Native TVOS'
   s.description     = package['description']
   s.author          = package['author']
   s.homepage        = package['repository']['url']
@@ -18,5 +18,5 @@ Pod::Spec.new do |s|
   # s.framework           = 'AudioToolbox','AVFoundation', 'CFNetwork', 'CoreFoundation', 'CoreGraphics', 'CoreMedia', 'CoreText', 'CoreVideo', 'Foundation', 'OpenGLES', 'QuartzCore', 'Security', 'VideoToolbox', 'UIKit'
 
   s.dependency      'React'
-  s.dependency      'MobileVLCKit','~> 3.3.17'
+  s.dependency      'TVVLCKit','~> 3.3.17'
 end
