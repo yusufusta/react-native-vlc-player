@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.homepage        = package['repository']['url']
   s.license         = package['license']
 
-  s.platform        = :ios, '9.0'
+  s.platforms     = { :ios => "9.0", :tvos => "9.0" }
   s.source          = { git: 'https://github.com/lunarr-app/vlc-player.git', tag: 'master' }
   s.preserve_paths  = 'ios/**/*'
   s.source_files    = 'ios/**/*.{h,m}'
