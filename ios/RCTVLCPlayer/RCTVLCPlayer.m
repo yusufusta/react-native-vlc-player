@@ -24,6 +24,7 @@ static NSString *const playbackRate = @"rate";
     NSDictionary * _source;
     BOOL _paused;
     BOOL _started;
+    NSDictionary * _videoInfo;
 
 }
 
@@ -86,6 +87,44 @@ static NSString *const playbackRate = @"rate";
         _paused = NO;
         _started = YES;
     }
+}
+
+-(NSDictionary *)getVideoInfo
+{
+    NSMutableDictionary *info = [NSMutableDictionary new];
+    info[@"duration"] = _player.media.length.value;
+    int i;
+    if(_player.videoSize.width > 0) {
+        info[@"videoSize"] =  @{
+            @"width":  @(_player.videoSize.width),
+            @"height": @(_player.videoSize.height)
+        };
+    }
+   if(_player.numberOfAudioTracks > 0) {
+        NSMutableArray *tracks = [NSMutableArray new];
+        for (i = 0; i < _player.numberOfAudioTracks; i++) {
+            if(_player.audioTrackIndexes[i] && _player.audioTrackNames[i]) {
+                [tracks addObject:  @{
+                    @"id": _player.audioTrackIndexes[i],
+                    @"name":  _player.audioTrackNames[i]
+                }];
+            }
+        }
+        info[@"audioTracks"] = tracks;
+    }
+    if(_player.numberOfSubtitlesTracks > 0) {
+        NSMutableArray *tracks = [NSMutableArray new];
+        for (i = 0; i < _player.numberOfSubtitlesTracks; i++) {
+            if(_player.videoSubTitlesIndexes[i] && _player.videoSubTitlesNames[i]) {
+                [tracks addObject:  @{
+                    @"id": _player.videoSubTitlesIndexes[i],
+                    @"name":  _player.videoSubTitlesNames[i]
+                }];
+            }
+        }
+        info[@"textTracks"] = tracks;
+    }
+    return info;
 }
 
 -(void)setResume:(BOOL)autoplay
@@ -153,6 +192,8 @@ static NSString *const playbackRate = @"rate";
             _player = nil;
         }
         _source = source;
+        _videoInfo = nil;
+
         NSMutableDictionary* mediaOptions = [source objectForKey:@"mediaOptions"];
         NSArray* options = [source objectForKey:@"initOptions"];
         NSString* uri    = [source objectForKey:@"uri"];
@@ -281,9 +322,11 @@ static NSString *const playbackRate = @"rate";
                                             });
                     break;
                 case VLCMediaPlayerStateBuffering:
+                    _videoInfo = [self getVideoInfo];
                     self.onVideoStateChange(@{
                                               @"target": self.reactTag,
                                               @"isBuffering": [NSNumber numberWithBool: !_player.isPlaying],
+                                              @"videoInfo": _videoInfo,
                                               @"type": @"Buffering",
                                             });
                     break;
@@ -433,6 +476,16 @@ static NSString *const playbackRate = @"rate";
         char *char_content = [ratio cStringUsingEncoding:NSASCIIStringEncoding];
         [_player setVideoAspectRatio:char_content];
     }
+}
+
+-(void)setAudioTrack:(int)track
+{
+    [_player setCurrentAudioTrackIndex: track];
+}
+
+-(void)setTextTrack:(int)track
+{
+    [_player setCurrentVideoSubTitleIndex:track];
 }
 
 - (void)_release
